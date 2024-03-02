@@ -5,6 +5,7 @@ function EditFormModal({ customer, closeModal }) {
   const [prestations, setPrestations] = useState([]);
   // État local pour les nouvelles prestations
   const [newPrestation, setNewPrestation] = useState({
+    customerId: customer.id,
     description: '',
     unit_price: '',
     unit_type: '',
@@ -12,12 +13,15 @@ function EditFormModal({ customer, closeModal }) {
   });
   // État local pour la liste des interventions
   const [interventions, setInterventions] = useState([{ date: '', qty_unit: '' }]);
-  
+//filtered prestation array
+  const filteredPrestations = prestations.filter(prestation => prestation.customerId === customer._id)
+
   // Gestionnaire d'événements pour ajouter une prestation
-  const handleAddPrestation = () => {
+  const handleAddPrestation = (customerId) => {
     if (newPrestation.description.trim() !== '' && newPrestation.unit_price.trim() !== '' && newPrestation.unit_type.trim() !== '') {
-      setPrestations([...prestations, {...newPrestation, interventions: interventions}]);
+      setPrestations([...prestations, { ...newPrestation,customerId:customerId, interventions: interventions }]);
       setNewPrestation({
+        customerId:'',
         description: '',
         unit_price: '',
         unit_type: '',
@@ -46,7 +50,7 @@ function EditFormModal({ customer, closeModal }) {
     if (storedPrestations) {
       setPrestations(JSON.parse(storedPrestations));
     }
-  }, []);
+  }, [customer._id]);
 
   return (
     <div className="modal-container" style={styles.modalContainer}>
@@ -60,7 +64,7 @@ function EditFormModal({ customer, closeModal }) {
               type="text"
               id="description"
               value={newPrestation.description}
-              onChange={(e) => setNewPrestation({...newPrestation, description: e.target.value})}
+              onChange={(e) => setNewPrestation({ ...newPrestation, description: e.target.value })}
             />
           </div>
           <div>
@@ -69,7 +73,7 @@ function EditFormModal({ customer, closeModal }) {
               type="number"
               id="unit_price"
               value={newPrestation.unit_price}
-              onChange={(e) => setNewPrestation({...newPrestation, unit_price: e.target.value})}
+              onChange={(e) => setNewPrestation({ ...newPrestation, unit_price: e.target.value })}
             />
           </div>
           <div>
@@ -78,7 +82,7 @@ function EditFormModal({ customer, closeModal }) {
               type="text"
               id="unit_type"
               value={newPrestation.unit_type}
-              onChange={(e) => setNewPrestation({...newPrestation, unit_type: e.target.value})}
+              onChange={(e) => setNewPrestation({ ...newPrestation, unit_type: e.target.value })}
             />
           </div>
           <div>
@@ -108,11 +112,11 @@ function EditFormModal({ customer, closeModal }) {
             ))}
           </div>
           <button type="button" onClick={handleAddIntervention}>+</button>
-          <button type="button" onClick={handleAddPrestation}>Valider les dates</button>
+          <button type="button" onClick={() => handleAddPrestation(customer._id)}>Valider les dates</button>
           <div>
             <h3>Prestations:</h3>
             <ol>
-              {prestations.map((prestation, index) => (
+              {filteredPrestations.map((prestation, index) => (
                 <li key={index}>
                   {prestation.description} - {prestation.unit_price} - {prestation.unit_type}
                   <ul>

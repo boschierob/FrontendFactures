@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import EditFormModal from './EditFormModal';
+import ConfirmationDeleteModal from './ConfirmationDeleteModal';
 import CreateCustomer from './CreateCustomer';
 
 
@@ -12,6 +13,8 @@ function CustomerList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showCreateCustomer, setShowCreateCustomer] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
   const handleCancel = () => {
     setShowCreateCustomer(false)
@@ -25,6 +28,20 @@ function CustomerList() {
   const handleEditClick = (customer) => {
     setSelectedCustomer(customer);
     setIsModalOpen(true);
+  };
+  const handleDeleteClick = (customer) => {
+    setCustomerToDelete(customer);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await api.delete(`/customers/${customerToDelete._id}`);
+      // Actualisez la liste des clients ou effectuez d'autres actions nécessaires
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+    }
+    setShowDeleteModal(false);
   };
 
   const closeModal = () => {
@@ -54,6 +71,7 @@ function CustomerList() {
           <li key={customer._id}>
             {customer.customer_firstname} {customer.customer_lastname}
             <button onClick={() => handleEditClick(customer)}>Edit</button>
+            <button onClick={() => handleDeleteClick(customer)}>Delete</button>
           </li>
         ))}
       </ul>
@@ -65,6 +83,10 @@ function CustomerList() {
           customer={selectedCustomer}
           closeModal={closeModal}
         />
+      )}
+
+{showDeleteModal && (
+        <ConfirmationDeleteModal onClose={() => setShowDeleteModal(false)} handleConfirmDelete={handleConfirmDelete} customer={customerToDelete}/>
       )}
     </div>
   );
@@ -81,5 +103,7 @@ const styles = {
     zIndex: '999', // Assurez-vous que le bouton apparaît au-dessus du contenu
   }
 };
+
+
 
 export default CustomerList;
