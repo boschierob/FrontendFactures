@@ -54,7 +54,7 @@ function CreateCustomer({ handleCancel }) {
   };
 
   return (
-    <div>
+    <div style={styles.containerMain}>
       <h2>Créer un nouveau client</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -156,6 +156,16 @@ function CreateCustomer({ handleCancel }) {
   );
 }
 
+const styles = {
+  containerMain: {
+    backgroundImage: 'linear-gradient(rgb(214, 234, 255), rgb(204, 229, 255))',
+    transition:'opacity 2s',
+    paddingBottom:'20px',
+    display: 'flex',
+    flexDirection:'column',
+    justifyContent: 'center',
+  }
+};
 
 export default CreateCustomer;
 

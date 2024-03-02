@@ -6,6 +6,8 @@ import EditFormModal from './EditFormModal';
 import ConfirmationDeleteModal from './ConfirmationDeleteModal';
 import CreateCustomer from './CreateCustomer';
 
+import { MdBorderColor, MdDeleteForever, MdEdit } from "react-icons/md";
+
 
 
 function CustomerList() {
@@ -64,19 +66,25 @@ function CustomerList() {
   return (
     <div>
       <h1>Liste des clients</h1>
-      <div style={styles.buttonContainer}>      
+      <div style={styles.buttonContainer}>
       </div>
-      <ul>
-      {customers && customers.map(customer => (
+      <ul style={styles.ul}>
+        {customers && customers.map(customer => (
           <li key={customer._id}>
-            {customer.customer_firstname} {customer.customer_lastname}
-            <button onClick={() => handleEditClick(customer)}>Edit</button>
-            <button onClick={() => handleDeleteClick(customer)}>Delete</button>
+            <h4 style={{ display: "inline-block", marginRight: "20px" }}>{customer.customer_firstname} {customer.customer_lastname}</h4>
+            <button onClick={() => handleEditClick(customer)} style={{ backgroundColor: "rgb(252, 241, 214)" }}>
+              Edit
+              <MdEdit style={{ color: "rgb(1, 22, 81)", transform: "scale(1.5)", transform: "translateX(10px)" }} />
+            </button>
+            <button onClick={() => handleDeleteClick(customer)} style={{ backgroundColor: "rgb(255, 237, 237)" }}>
+              <MdDeleteForever style={{ color: "rgb(188, 15, 15)", transform: "scale(1.5)" }} />
+            </button>
           </li>
         ))}
       </ul>
-      { !showCreateCustomer && <button style={styles.createCustomerButton} onClick={handleCreateCustomerClick}>Créer un client</button>}
-      {showCreateCustomer &&<CreateCustomer handleCancel={handleCancel} />}
+
+      {!showCreateCustomer && <button style={styles.createCustomerButton} onClick={handleCreateCustomerClick}>Créer un client</button>}
+      {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} />}
 
       {isModalOpen && (
         <EditFormModal
@@ -85,8 +93,8 @@ function CustomerList() {
         />
       )}
 
-{showDeleteModal && (
-        <ConfirmationDeleteModal onClose={() => setShowDeleteModal(false)} handleConfirmDelete={handleConfirmDelete} customer={customerToDelete}/>
+      {showDeleteModal && (
+        <ConfirmationDeleteModal onClose={() => setShowDeleteModal(false)} handleConfirmDelete={handleConfirmDelete} customer={customerToDelete} />
       )}
     </div>
   );
@@ -101,6 +109,10 @@ const styles = {
   createCustomerButton: {
     marginLeft: '20px', // Marge à gauche du bouton
     zIndex: '999', // Assurez-vous que le bouton apparaît au-dessus du contenu
+  },
+  ul:{
+    borderLeft:' 6px solid rgb(33, 53, 71)',
+
   }
 };
 

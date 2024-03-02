@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { AiOutlineCheck } from "react-icons/ai";
+import { IoIosTime } from "react-icons/io";
 
 function EditFormModal({ customer, closeModal }) {
   // État local pour les prestations
@@ -13,15 +15,15 @@ function EditFormModal({ customer, closeModal }) {
   });
   // État local pour la liste des interventions
   const [interventions, setInterventions] = useState([{ date: '', qty_unit: '' }]);
-//filtered prestation array
+  //filtered prestation array
   const filteredPrestations = prestations.filter(prestation => prestation.customerId === customer._id)
 
   // Gestionnaire d'événements pour ajouter une prestation
   const handleAddPrestation = (customerId) => {
     if (newPrestation.description.trim() !== '' && newPrestation.unit_price.trim() !== '' && newPrestation.unit_type.trim() !== '') {
-      setPrestations([...prestations, { ...newPrestation,customerId:customerId, interventions: interventions }]);
+      setPrestations([...prestations, { ...newPrestation, customerId: customerId, interventions: interventions }]);
       setNewPrestation({
-        customerId:'',
+        customerId: '',
         description: '',
         unit_price: '',
         unit_type: '',
@@ -77,12 +79,26 @@ function EditFormModal({ customer, closeModal }) {
             />
           </div>
           <div>
-            <label htmlFor="unit_type">Type d'unité:</label>
+            <label>
+              Selectionnez le type d'unité :
+              <select name="unit_type"
+                defaultValue="hour"
+                type="text"
+                id="unit_type"
+                value={newPrestation.unit_type}
+                onChange={(e) => setNewPrestation({ ...newPrestation, unit_type: e.target.value })}>
+                <option value="hour">Heure</option>
+                <option value="forfait">Forfait</option>
+                <option value="day">Jour</option>
+              </select>
+            </label>
+            <label htmlFor="unit_type" >Type d'unité:</label>
             <input
               type="text"
               id="unit_type"
               value={newPrestation.unit_type}
-              onChange={(e) => setNewPrestation({ ...newPrestation, unit_type: e.target.value })}
+              readonly
+              disabled
             />
           </div>
           <div>
@@ -98,7 +114,7 @@ function EditFormModal({ customer, closeModal }) {
                     setInterventions(newInterventions);
                   }}
                 />
-                <label>Quantité d'heures:</label>
+                <label>Quantité :</label>
                 <input
                   type="number"
                   value={intervention.qty_unit}
@@ -118,10 +134,10 @@ function EditFormModal({ customer, closeModal }) {
             <ol>
               {filteredPrestations.map((prestation, index) => (
                 <li key={index}>
-                  {prestation.description} - {prestation.unit_price} - {prestation.unit_type}
+                  prestation de {prestation.description} à {prestation.unit_price} euros  par {prestation.unit_type}
                   <ul>
                     {prestation.interventions.map((intervention, subIndex) => (
-                      <li key={subIndex}>{intervention.date} - {intervention.qty_unit} heures</li>
+                      <li key={subIndex}> <AiOutlineCheck /> {intervention.date} <span><IoIosTime /> {intervention.qty_unit} {prestation.unit_type}</span> </li>
                     ))}
                   </ul>
                 </li>
