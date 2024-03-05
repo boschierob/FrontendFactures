@@ -5,6 +5,8 @@ import api from '../services/api';
 import EditFormModal from './EditFormModal';
 import ConfirmationDeleteModal from './ConfirmationDeleteModal';
 import CreateCustomer from './CreateCustomer';
+import UpdateCustomer  from "./UpdateCustomer";
+import ButtonUpdate from './ButtonUpdate';
 
 import { MdBorderColor, MdDeleteForever, MdEdit } from "react-icons/md";
 
@@ -13,6 +15,8 @@ import { MdBorderColor, MdDeleteForever, MdEdit } from "react-icons/md";
 function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updateCustomerModal, setUpdateCustomerModal] = useState(false);
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showCreateCustomer, setShowCreateCustomer] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,6 +29,24 @@ function CustomerList() {
   const handleCreateCustomerClick = () => {
     setShowCreateCustomer(true);
   };
+
+
+  const handleUpdateCustomerDatas = (customer) => {
+    setSelectedCustomer(customer);
+    setUpdateCustomerModal(true);
+    console.log('data sent to modal' +JSON.stringify(customer));
+  };
+
+  const handleConfirmUpdateCustomerDatas = () => {
+    // Logique pour confirmer les modifications, par exemple en envoyant les données modifiées au serveur
+    setUpdateCustomerModal(false);
+  };
+
+  const handleCancelUpdateCustomerDatas = () => {
+    // Logique pour annuler les modifications, par exemple en réinitialisant les données modifiées
+    setUpdateCustomerModal(false);
+  };
+
 
 
   const handleEditClick = (customer) => {
@@ -71,20 +93,31 @@ function CustomerList() {
       <ul style={styles.ul}>
         {customers && customers.map(customer => (
           <li key={customer._id}>
-            <h4 style={{ display: "inline-block", marginRight: "20px" }}>{customer.customer_firstname} {customer.customer_lastname}</h4>
+            <h4 style={{ display: "inline-block", marginRight: "20px" }}> <a style={{ color: "rgb(1, 22, 81)", cursor: "pointer" }} onClick={() => handleUpdateCustomerDatas(customer)}> {customer.customer_firstname} {customer.customer_lastname}</a></h4>
             <button onClick={() => handleEditClick(customer)} style={{ backgroundColor: "rgb(252, 241, 214)" }}>
               Edit
-              <MdEdit style={{ color: "rgb(1, 22, 81)", transform: "scale(1.5)", transform: "translateX(10px)" }} />
+              <MdEdit style={{ color: "rgb(1, 22, 81)", transform: "scale(1.5),translateX(10px) " }} />
             </button>
             <button onClick={() => handleDeleteClick(customer)} style={{ backgroundColor: "rgb(255, 237, 237)" }}>
               <MdDeleteForever style={{ color: "rgb(188, 15, 15)", transform: "scale(1.5)" }} />
             </button>
+            <hr />
+
           </li>
         ))}
       </ul>
 
+
       {!showCreateCustomer && <button style={styles.createCustomerButton} onClick={handleCreateCustomerClick}>Créer un client</button>}
       {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} />}
+     
+      {updateCustomerModal && (
+              <UpdateCustomer 
+                data={selectedCustomer}
+                onConfirm={handleConfirmUpdateCustomerDatas}
+                onCancel={handleCancelUpdateCustomerDatas}
+              />
+            )}
 
       {isModalOpen && (
         <EditFormModal
@@ -110,9 +143,15 @@ const styles = {
     marginLeft: '20px', // Marge à gauche du bouton
     zIndex: '999', // Assurez-vous que le bouton apparaît au-dessus du contenu
   },
-  ul:{
-    borderLeft:' 6px solid rgb(33, 53, 71)',
+  ul: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    borderLeft: ' 6px solid rgb(33, 53, 71)',
 
+  },
+  hr: {
+    color: 'black',
   }
 };
 

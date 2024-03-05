@@ -82,7 +82,6 @@ function EditFormModal({ customer, closeModal }) {
             <label>
               Selectionnez le type d'unité :
               <select name="unit_type"
-                defaultValue="hour"
                 type="text"
                 id="unit_type"
                 value={newPrestation.unit_type}
@@ -97,7 +96,7 @@ function EditFormModal({ customer, closeModal }) {
               type="text"
               id="unit_type"
               value={newPrestation.unit_type}
-              readonly
+              readOnly
               disabled
             />
           </div>
@@ -129,15 +128,15 @@ function EditFormModal({ customer, closeModal }) {
           </div>
           <button type="button" onClick={handleAddIntervention}>+</button>
           <button type="button" onClick={() => handleAddPrestation(customer._id)}>Valider les dates</button>
-          <div>
+          <div >
             <h3>Prestations:</h3>
             <ol>
               {filteredPrestations.map((prestation, index) => (
-                <li key={index}>
+                <li style={{margin:'auto 20px auto auto'}} key={index}>
                   prestation de {prestation.description} à {prestation.unit_price} euros  par {prestation.unit_type}
                   <ul>
                     {prestation.interventions.map((intervention, subIndex) => (
-                      <li key={subIndex}> <AiOutlineCheck /> {intervention.date} <span><IoIosTime /> {intervention.qty_unit} {prestation.unit_type}</span> </li>
+                      <li style={{margin:'auto 60px auto auto'}} key={subIndex}> <AiOutlineCheck /> {intervention.date} <span><IoIosTime /> {intervention.qty_unit} {prestation.unit_type}</span> </li>
                     ))}
                   </ul>
                 </li>

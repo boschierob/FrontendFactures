@@ -159,7 +159,6 @@ function CreateCustomer({ handleCancel }) {
 const styles = {
   containerMain: {
     backgroundImage: 'linear-gradient(rgb(214, 234, 255), rgb(204, 229, 255))',
-    transition:'opacity 2s',
     paddingBottom:'20px',
     display: 'flex',
     flexDirection:'column',
