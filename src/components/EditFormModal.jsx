@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AiOutlineCheck } from "react-icons/ai";
 import { IoIosTime } from "react-icons/io";
+import api from '../services/api';
+
 
 function EditFormModal({ customer, closeModal }) {
   const [prestations, setPrestations] = useState([]);
@@ -32,8 +34,6 @@ function EditFormModal({ customer, closeModal }) {
     }
   };
 
-  
-
   const handleAddIntervention = () => {
     setInterventions([...interventions, { date: '', qty_unit: '' }]);
   };
@@ -41,31 +41,44 @@ function EditFormModal({ customer, closeModal }) {
   const handleInterventionChange = (index, field, value) => {
     const newInterventions = [...interventions];
     newInterventions[index][field] = value;
-    setInterventions(newInterventions);  
+    setInterventions(newInterventions);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const updatedPrestations = prestations.map(prestation => {
-      if (prestation.customerId === customer._id) {
-        console.log('prestation.interventions '+ JSON.stringify(prestation.interventions));
-        console.log('interventions '+ JSON.stringify(interventions));
-        console.log('prestation.interventions.concat(interventions) ' + JSON.stringify(prestation.interventions.concat(interventions)));
-        const updatedInterventions = interventions.length > 0 && interventions.every(intervention => intervention.date.trim() !== '' && intervention.qty_unit.trim() !== '')
-        ? prestation.interventions.concat(interventions)
-        : prestation.interventions;
-               return {
-          ...prestation,
-          interventions: updatedInterventions
-        };
-      }
-      return prestation;
-    });
-    console.log('updatedPrestations', updatedPrestations);
-    setPrestations(updatedPrestations);
-    localStorage.setItem('prestations', JSON.stringify(updatedPrestations));
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  // Supprimer la clé "customerId" de chaque objet prestation
+  const updatedPrestationsWithoutCustomerId = prestations.map(prestation => {
+    const { customerId, ...rest } = prestation;
+    return rest;
+  });
+
+  // Convertir les valeurs des prix et des quantités en nombres
+  const updatedPrestationsFormatted = updatedPrestationsWithoutCustomerId.map(prestation => ({
+    ...prestation,
+    unit_price: Number(prestation.unit_price),
+    interventions: prestation.interventions.map(intervention => ({
+      ...intervention,
+      qty_unit: Number(intervention.qty_unit)
+    }))
+  }));
+
+  try {
+    const response = await api.put(`customers/${customer._id}`, { prestations: updatedPrestationsFormatted });
+    console.log('RESPONSE ' +JSON.stringify(response)); 
+    if (!response.status === 201) {
+      throw new Error('Erreur lors de la mise à jour des prestations');
+    }
+
+    alert(response.message);
     closeModal();
-  };
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des prestations:', error);
+    // Gérer les erreurs ici
+  }
+};
+
+  
 
   useEffect(() => {
     const storedPrestations = localStorage.getItem('prestations');

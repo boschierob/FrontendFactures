@@ -31,6 +31,26 @@ const api = {
         console.error('Erreur de fetch:', error);
         throw error;
       }
+    },
+    async put(endpoint, data) {
+      console.log('data in the service api to send :'+JSON.stringify(data));
+      console.log('endpoint '+ endpoint);
+      try {
+        const response = await fetch(`http://localhost:3000/${endpoint}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP! Statut: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Erreur de fetch:', error);
+        throw error;
+      }
     }
   };
   
