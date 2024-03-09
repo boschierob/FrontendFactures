@@ -59,8 +59,8 @@ const companyId = data.company;
   }, []);
 
   return ReactDOM.createPortal(
-    <div className="modal">
-      <div className="modal-content">
+    <div className="modal modal-container" style={styles.modalContainer}>
+      <div className="modal-content" style={styles.modalContent}> 
         <h2>Modifier les données du client</h2>
         <ul>
         {renderData(data)}
@@ -74,5 +74,29 @@ const companyId = data.company;
     document.getElementById('modal-root')
   );
 };
+
+const styles = {
+  modalContainer: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', /* Fond semi-transparent */
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)',
+  },
+  closeModalButton: {
+    cursor: 'pointer',
+  }
+};
+
 
 export default UpdateCustomer ;

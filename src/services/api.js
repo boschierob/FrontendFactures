@@ -14,6 +14,7 @@ const api = {
       }
     },
     async post(endpoint, data) {
+      console.log('enter frontend to api');
       try {
         const response = await fetch(`http://localhost:3000/${endpoint}`, {
           method: 'POST',

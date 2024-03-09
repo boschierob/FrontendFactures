@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
-function CreateCustomer({ handleCancel }) {
+function CreateCustomer({ handleCancel, customers }) {
 
   const [customerData, setCustomerData] = useState({
     customer_firstname: '',
@@ -14,25 +14,38 @@ function CreateCustomer({ handleCancel }) {
       city: '',
       country: ''
     },
-    customer_number: '',
-    company: '' // Ajoutez une valeur pour l'ID de l'entreprise
+    customer_number: '0',
+    company: ''
   });
+
+  const [companyChoices, setCompanyChoices] = useState([])
 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCustomerData({
-      ...customerData,
-      [name]: value
-    });
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setCustomerData({
+        ...customerData,
+        [parent]: {
+          ...customerData[parent],
+          [child]: value
+        }
+      });
+    } else {
+      setCustomerData({
+        ...customerData,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      clg
-      //const response = await api.post('/customers', customerData);
-      //console.log('New customer created:', response.data);
+      console.log(customerData);
+      const response = await api.post('customers', customerData);
+      console.log('New customer created:', response);
       // Réinitialiser le formulaire après la création réussie
       setCustomerData({
         customer_firstname: '',
@@ -52,6 +65,59 @@ function CreateCustomer({ handleCancel }) {
       console.error('Error creating customer:', error);
     }
   };
+
+
+  async function getNextCustomerNumber(companyId) {
+    try {
+      // Trouver le dernier client enregistré pour cette entreprise
+      const lastCustomer = await customers.findOne({ company: companyId })
+        .sort({ customer_number: -1 })
+        .limit(1);
+  
+      if (lastCustomer) {
+        // Extraire le numéro de client le plus récent
+        const lastCustomerNumber = parseInt(lastCustomer.customer_number.slice(1)); // Supprimer le préfixe 'C' et convertir en nombre
+  
+        // Générer le numéro de client suivant en incrémentant le dernier numéro
+        const nextCustomerNumber = 'C' + String(lastCustomerNumber + 1).padStart(3, '0'); // Ajouter le préfixe 'C' et formater sur 3 chiffres
+  
+        return nextCustomerNumber;
+      } else {
+        // Aucun client enregistré pour cette entreprise, commencer à partir de C001
+        return 'C001';
+      }
+    } catch (error) {
+      console.error('Error fetching next customer number:', error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    async function fetchCompanyChoices() {
+      try {
+        const response = await api.get('companies');
+        setCompanyChoices(response);
+      } catch (error) {
+        console.error('Error fetching clients:', error)
+      }
+    }
+
+    fetchCompanyChoices();
+
+  }, []);
+
+
+
+  useEffect(() => {
+    // Mettre à jour le numéro du client uniquement lorsque les données des clients existants sont disponibles
+    if (customers.length > 0) {
+      const nextCustomerNumber = getNextCustomerNumber(customers);
+      setCustomerData(prevData => ({
+        ...prevData,
+        customer_number: nextCustomerNumber
+      }));
+    }
+  }, [customers]); // L'effet se déclenche lorsque les données des clients existants sont mises à jour
 
   return (
     <div style={styles.containerMain}>
@@ -82,7 +148,7 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="road"
-            name="road"
+            name="customer_address.road"
             value={customerData.customer_address.road}
             onChange={handleChange}
           />
@@ -92,7 +158,7 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="number"
-            name="number"
+            name="customer_address.number"
             value={customerData.customer_address.number}
             onChange={handleChange}
           />
@@ -102,7 +168,7 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="extra_info"
-            name="extra_info"
+            name="customer_address.extra_info"
             value={customerData.customer_address.extra_info}
             onChange={handleChange}
           />
@@ -112,7 +178,7 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="postal_code"
-            name="postal_code"
+            name="customer_address.postal_code"
             value={customerData.customer_address.postal_code}
             onChange={handleChange}
           />
@@ -122,7 +188,7 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="city"
-            name="city"
+            name="customer_address.city"
             value={customerData.customer_address.city}
             onChange={handleChange}
           />
@@ -132,10 +198,19 @@ function CreateCustomer({ handleCancel }) {
           <input
             type="text"
             id="country"
-            name="country"
+            name="customer_address.country"
             value={customerData.customer_address.country}
             onChange={handleChange}
           />
+        </div>
+        <div>
+        <label htmlFor="country">Ce client appartient à l'entreprise:</label>
+          <select name="company" value={customerData.company} onChange={handleChange}>
+            <option value="">Sélectionnez une entreprise</option>
+            {companyChoices.map(company => (
+              <option key={company._id} value={company._id}>{company.companyName}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="customer_number">Numéro de client:</label>
@@ -149,7 +224,7 @@ function CreateCustomer({ handleCancel }) {
         </div>
 
         <button type="submit">Créer le client</button>
-        <span id="cancel_btn" style={{cursor: "pointer"}} onClick={handleCancel}>Annuler</span>
+        <span id="cancel_btn" style={{ cursor: "pointer" }} onClick={handleCancel}>Annuler</span>
       </form>
 
     </div>
@@ -159,9 +234,9 @@ function CreateCustomer({ handleCancel }) {
 const styles = {
   containerMain: {
     backgroundImage: 'linear-gradient(rgb(214, 234, 255), rgb(204, 229, 255))',
-    paddingBottom:'20px',
+    paddingBottom: '20px',
     display: 'flex',
-    flexDirection:'column',
+    flexDirection: 'column',
     justifyContent: 'center',
   }
 };

@@ -8,7 +8,7 @@ import CreateCustomer from './CreateCustomer';
 import UpdateCustomer  from "./UpdateCustomer";
 import ButtonUpdate from './ButtonUpdate';
 
-import { MdBorderColor, MdDeleteForever, MdEdit } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 
 
 
@@ -83,7 +83,7 @@ function CustomerList() {
     }
 
     fetchClients();
-  }, []);
+  }, [showCreateCustomer]);
 
   return (
     <div>
@@ -99,7 +99,7 @@ function CustomerList() {
               <MdEdit style={{ color: "rgb(1, 22, 81)", transform: "scale(1.5),translateX(10px) " }} />
             </button>
             <button onClick={() => handleDeleteClick(customer)} style={{ backgroundColor: "rgb(255, 237, 237)" }}>
-              <MdDeleteForever style={{ color: "rgb(188, 15, 15)", transform: "scale(1.5)" }} />
+              X
             </button>
             <hr />
 
@@ -109,7 +109,7 @@ function CustomerList() {
 
 
       {!showCreateCustomer && <button style={styles.createCustomerButton} onClick={handleCreateCustomerClick}>Créer un client</button>}
-      {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} />}
+      {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} customers={customers}/>}
      
       {updateCustomerModal && (
               <UpdateCustomer 
@@ -149,6 +149,9 @@ const styles = {
     justifyContent: 'center',
     borderLeft: ' 6px solid rgb(33, 53, 71)',
 
+  },
+  deleteButton: {
+    display:'none',
   },
   hr: {
     color: 'black',

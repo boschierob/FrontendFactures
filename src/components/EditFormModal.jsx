@@ -3,9 +3,7 @@ import { AiOutlineCheck } from "react-icons/ai";
 import { IoIosTime } from "react-icons/io";
 
 function EditFormModal({ customer, closeModal }) {
-  // État local pour les prestations
   const [prestations, setPrestations] = useState([]);
-  // État local pour les nouvelles prestations
   const [newPrestation, setNewPrestation] = useState({
     customerId: customer.id,
     description: '',
@@ -13,37 +11,59 @@ function EditFormModal({ customer, closeModal }) {
     unit_type: '',
     interventions: []
   });
-  // État local pour la liste des interventions
   const [interventions, setInterventions] = useState([{ date: '', qty_unit: '' }]);
-  //filtered prestation array
   const filteredPrestations = prestations.filter(prestation => prestation.customerId === customer._id)
 
-  // Gestionnaire d'événements pour ajouter une prestation
-  const handleAddPrestation = (customerId) => {
+  const handleAddPrestation = () => {
     if (newPrestation.description.trim() !== '' && newPrestation.unit_price.trim() !== '' && newPrestation.unit_type.trim() !== '') {
-      setPrestations([...prestations, { ...newPrestation, customerId: customerId, interventions: interventions }]);
+      const prestationWithInterventions = {
+        ...newPrestation,
+        customerId: customer._id,
+        interventions: interventions
+      };
+      setPrestations([...prestations, prestationWithInterventions]);
       setNewPrestation({
-        customerId: '',
+        ...newPrestation,
         description: '',
         unit_price: '',
-        unit_type: '',
-        interventions: []
+        unit_type: ''
       });
-      setInterventions([{ date: '', qty_unit: '' }]); // Réinitialiser les interventions
+      setInterventions([{ date: '', qty_unit: '' }]);
     }
   };
 
-  // Gestionnaire d'événements pour ajouter une intervention
+  
+
   const handleAddIntervention = () => {
     setInterventions([...interventions, { date: '', qty_unit: '' }]);
   };
 
-  // Gestionnaire d'événements pour soumettre le formulaire
+  const handleInterventionChange = (index, field, value) => {
+    const newInterventions = [...interventions];
+    newInterventions[index][field] = value;
+    setInterventions(newInterventions);  
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Implémentez ici la logique pour soumettre les prestations du client
-    console.log('Prestations ajoutées:', prestations);
-    localStorage.setItem('prestations', JSON.stringify(prestations));
+    const updatedPrestations = prestations.map(prestation => {
+      if (prestation.customerId === customer._id) {
+        console.log('prestation.interventions '+ JSON.stringify(prestation.interventions));
+        console.log('interventions '+ JSON.stringify(interventions));
+        console.log('prestation.interventions.concat(interventions) ' + JSON.stringify(prestation.interventions.concat(interventions)));
+        const updatedInterventions = interventions.length > 0 && interventions.every(intervention => intervention.date.trim() !== '' && intervention.qty_unit.trim() !== '')
+        ? prestation.interventions.concat(interventions)
+        : prestation.interventions;
+               return {
+          ...prestation,
+          interventions: updatedInterventions
+        };
+      }
+      return prestation;
+    });
+    console.log('updatedPrestations', updatedPrestations);
+    setPrestations(updatedPrestations);
+    localStorage.setItem('prestations', JSON.stringify(updatedPrestations));
     closeModal();
   };
 
@@ -79,26 +99,15 @@ function EditFormModal({ customer, closeModal }) {
             />
           </div>
           <div>
-            <label>
-              Selectionnez le type d'unité :
-              <select name="unit_type"
-                type="text"
-                id="unit_type"
-                value={newPrestation.unit_type}
-                onChange={(e) => setNewPrestation({ ...newPrestation, unit_type: e.target.value })}>
-                <option value="hour">Heure</option>
-                <option value="forfait">Forfait</option>
-                <option value="day">Jour</option>
-              </select>
-            </label>
-            <label htmlFor="unit_type" >Type d'unité:</label>
-            <input
-              type="text"
+            <label htmlFor="unit_type">Type d'unité:</label>
+            <select
               id="unit_type"
               value={newPrestation.unit_type}
-              readOnly
-              disabled
-            />
+              onChange={(e) => setNewPrestation({ ...newPrestation, unit_type: e.target.value })}>
+              <option value="hour">Heure</option>
+              <option value="forfait">Forfait</option>
+              <option value="day">Jour</option>
+            </select>
           </div>
           <div>
             {interventions.map((intervention, index) => (
@@ -107,36 +116,28 @@ function EditFormModal({ customer, closeModal }) {
                 <input
                   type="date"
                   value={intervention.date}
-                  onChange={(e) => {
-                    const newInterventions = [...interventions];
-                    newInterventions[index].date = e.target.value;
-                    setInterventions(newInterventions);
-                  }}
+                  onChange={(e) => handleInterventionChange(index, 'date', e.target.value)}
                 />
                 <label>Quantité :</label>
                 <input
                   type="number"
                   value={intervention.qty_unit}
-                  onChange={(e) => {
-                    const newInterventions = [...interventions];
-                    newInterventions[index].qty_unit = e.target.value;
-                    setInterventions(newInterventions);
-                  }}
+                  onChange={(e) => handleInterventionChange(index, 'qty_unit', e.target.value)}
                 />
               </div>
             ))}
           </div>
           <button type="button" onClick={handleAddIntervention}>+</button>
           <button type="button" onClick={() => handleAddPrestation(customer._id)}>Valider les dates</button>
-          <div >
+          <div>
             <h3>Prestations:</h3>
             <ol>
               {filteredPrestations.map((prestation, index) => (
-                <li style={{margin:'auto 20px auto auto'}} key={index}>
+                <li style={{ margin: 'auto 20px auto auto' }} key={index}>
                   prestation de {prestation.description} à {prestation.unit_price} euros  par {prestation.unit_type}
                   <ul>
                     {prestation.interventions.map((intervention, subIndex) => (
-                      <li style={{margin:'auto 60px auto auto'}} key={subIndex}> <AiOutlineCheck /> {intervention.date} <span><IoIosTime /> {intervention.qty_unit} {prestation.unit_type}</span> </li>
+                      <li style={{ margin: 'auto 60px auto auto' }} key={subIndex}> <AiOutlineCheck /> {intervention.date} <span><IoIosTime /> {intervention.qty_unit} {prestation.unit_type}</span> </li>
                     ))}
                   </ul>
                 </li>
@@ -158,7 +159,7 @@ const styles = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', /* Fond semi-transparent */
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
