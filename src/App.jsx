@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CompanyProvider } from './context/CompanyContext';
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -19,9 +20,12 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <main>
-        <CustomerList />
-      </main>
+      <CompanyProvider>
+        <main>
+          <CustomerList />
+        </main>
+      </CompanyProvider>
+
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}

@@ -7,6 +7,7 @@ import ConfirmationDeleteModal from './ConfirmationDeleteModal';
 import CreateCustomer from './CreateCustomer';
 import UpdateCustomer  from "./UpdateCustomer";
 import ButtonUpdate from './ButtonUpdate';
+import CompanySelector from './CompanySelector';
 
 import { MdEdit } from "react-icons/md";
 
@@ -90,6 +91,7 @@ function CustomerList() {
 
   return (
     <div>
+      <CompanySelector />
       <h1>Liste des clients</h1>
       <div style={styles.buttonContainer}>
       </div>
