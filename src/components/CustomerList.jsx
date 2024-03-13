@@ -26,6 +26,9 @@ function CustomerList() {
     setShowCreateCustomer(false)
   }
 
+  const handleCloseCreateCustomerModal = () => {
+    setShowCreateCustomer(false)
+  }
   const handleCreateCustomerClick = () => {
     setShowCreateCustomer(true);
   };
@@ -58,10 +61,10 @@ function CustomerList() {
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (customerToDeleteId) => {
     try {
-      await api.delete(`/customers/${customerToDelete._id}`);
-      // Actualisez la liste des clients ou effectuez d'autres actions nécessaires
+      await api.delete(`customers/${customerToDeleteId}`);
+      setCustomers(customers.filter(customer => customer._id !== customerToDeleteId));
     } catch (error) {
       console.error('Error deleting customer:', error);
     }
@@ -109,7 +112,7 @@ function CustomerList() {
 
 
       {!showCreateCustomer && <button style={styles.createCustomerButton} onClick={handleCreateCustomerClick}>Créer un client</button>}
-      {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} customers={customers}/>}
+      {showCreateCustomer && <CreateCustomer handleCancel={handleCancel} customers={customers} handleCloseCreateCustomerModal={handleCloseCreateCustomerModal}/>}
      
       {updateCustomerModal && (
               <UpdateCustomer 
@@ -127,7 +130,7 @@ function CustomerList() {
       )}
 
       {showDeleteModal && (
-        <ConfirmationDeleteModal onClose={() => setShowDeleteModal(false)} handleConfirmDelete={handleConfirmDelete} customer={customerToDelete} />
+        <ConfirmationDeleteModal onClose={() => setShowDeleteModal(false)} handleConfirmDelete={() => handleConfirmDelete(customerToDelete._id)} customer={customerToDelete} />
       )}
     </div>
   );

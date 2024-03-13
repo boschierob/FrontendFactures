@@ -51,6 +51,25 @@ const api = {
         console.error('Erreur de fetch:', error);
         throw error;
       }
+    },
+    async delete(endpoint) {
+      console.log('endpoint for delete: ' + endpoint);
+      try {
+        const response = await fetch(`http://localhost:3000/${endpoint}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+          // Pas de body pour une requête DELETE dans cet exemple
+        });
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP! Statut: ${response.status}`);
+        }
+        return await response.json(); // ou response.text() si la réponse n'est pas du JSON
+      } catch (error) {
+        console.error('Erreur de fetch:', error);
+        throw error;
+      }
     }
   };
   

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
-function CreateCustomer({ handleCancel, customers }) {
+function CreateCustomer({ handleCancel, customers, handleCloseCreateCustomerModal }) {
 
   const [customerData, setCustomerData] = useState({
     customer_firstname: '',
@@ -61,36 +61,11 @@ function CreateCustomer({ handleCancel, customers }) {
         customer_number: '',
         company: ''
       });
+      handleCloseCreateCustomerModal();
     } catch (error) {
       console.error('Error creating customer:', error);
     }
   };
-
-
-  async function getNextCustomerNumber(companyId) {
-    try {
-      // Trouver le dernier client enregistré pour cette entreprise
-      const lastCustomer = await customers.findOne({ company: companyId })
-        .sort({ customer_number: -1 })
-        .limit(1);
-  
-      if (lastCustomer) {
-        // Extraire le numéro de client le plus récent
-        const lastCustomerNumber = parseInt(lastCustomer.customer_number.slice(1)); // Supprimer le préfixe 'C' et convertir en nombre
-  
-        // Générer le numéro de client suivant en incrémentant le dernier numéro
-        const nextCustomerNumber = 'C' + String(lastCustomerNumber + 1).padStart(3, '0'); // Ajouter le préfixe 'C' et formater sur 3 chiffres
-  
-        return nextCustomerNumber;
-      } else {
-        // Aucun client enregistré pour cette entreprise, commencer à partir de C001
-        return 'C001';
-      }
-    } catch (error) {
-      console.error('Error fetching next customer number:', error);
-      throw error;
-    }
-  }
 
   useEffect(() => {
     async function fetchCompanyChoices() {
@@ -107,14 +82,12 @@ function CreateCustomer({ handleCancel, customers }) {
   }, []);
 
 
-
   useEffect(() => {
     // Mettre à jour le numéro du client uniquement lorsque les données des clients existants sont disponibles
     if (customers.length > 0) {
-      const nextCustomerNumber = getNextCustomerNumber(customers);
       setCustomerData(prevData => ({
         ...prevData,
-        customer_number: nextCustomerNumber
+        customer_number: 'C' + String(customers.length + 1).padStart(3, '0')
       }));
     }
   }, [customers]); // L'effet se déclenche lorsque les données des clients existants sont mises à jour

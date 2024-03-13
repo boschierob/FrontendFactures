@@ -14,7 +14,6 @@ function EditFormModal({ customer, closeModal }) {
     interventions: []
   });
   const [interventions, setInterventions] = useState([{ date: '', qty_unit: '' }]);
-  const filteredPrestations = prestations.filter(prestation => prestation.customerId === customer._id)
 
   const handleAddPrestation = () => {
     if (newPrestation.description.trim() !== '' && newPrestation.unit_price.trim() !== '' && newPrestation.unit_type.trim() !== '') {
@@ -80,12 +79,15 @@ function EditFormModal({ customer, closeModal }) {
 
   
 
-  useEffect(() => {
-    const storedPrestations = localStorage.getItem('prestations');
-    if (storedPrestations) {
-      setPrestations(JSON.parse(storedPrestations));
-    }
-  }, [customer._id]);
+useEffect(() => {
+  if (customer.prestations) {
+    setPrestations(customer.prestations);
+  } else {
+    // Si customer.prestations n'existe pas, définissez prestations sur un tableau vide
+    setPrestations([]);
+  }
+  
+}, [customer._id, customer.prestations]); 
 
   return (
     <div className="modal-container" style={styles.modalContainer}>
@@ -145,7 +147,7 @@ function EditFormModal({ customer, closeModal }) {
           <div>
             <h3>Prestations:</h3>
             <ol>
-              {filteredPrestations.map((prestation, index) => (
+              {prestations.map((prestation, index) => (
                 <li style={{ margin: 'auto 20px auto auto' }} key={index}>
                   prestation de {prestation.description} à {prestation.unit_price} euros  par {prestation.unit_type}
                   <ul>

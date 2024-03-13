@@ -60,6 +60,7 @@ const companyId = data.company;
 
   return ReactDOM.createPortal(
     <div className="modal modal-container" style={styles.modalContainer}>
+      <button className="btn btn-primary closeModalButton" onClick={onCancel}>X</button>
       <div className="modal-content" style={styles.modalContent}> 
         <h2>Modifier les données du client</h2>
         <ul>
@@ -82,18 +83,26 @@ const styles = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', /* Fond semi-transparent */
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fond semi-transparent
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1000, // Assurez-vous que le modal est bien au-dessus des autres éléments
   },
   modalContent: {
+    position: 'relative', // Pour positionnement absolu du bouton close à l'intérieur
     backgroundColor: 'white',
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)',
+    maxHeight: '80%', // Limite la hauteur du modal à 80% de la hauteur de l'écran
+    overflowY: 'auto', // Permet le défilement vertical si le contenu dépasse
+    width: '600px', // Vous pouvez ajuster la largeur selon vos besoins
   },
   closeModalButton: {
+    position: 'absolute', // Positionnement absolu
+    top: '100px', // Positionné en haut à droite du modal
+    right: '10px',
     cursor: 'pointer',
   }
 };
