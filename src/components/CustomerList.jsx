@@ -8,13 +8,15 @@ import CreateCustomer from './CreateCustomer';
 import UpdateCustomer  from "./UpdateCustomer";
 import ButtonUpdate from './ButtonUpdate';
 import CompanySelector from './CompanySelector';
+import { useCompany } from '../context/CompanyContext';
 
 import { MdEdit } from "react-icons/md";
 
 
-
 function CustomerList() {
   const [customers, setCustomers] = useState([]);
+  const { company } = useCompany();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateCustomerModal, setUpdateCustomerModal] = useState(false);
 
@@ -78,8 +80,11 @@ function CustomerList() {
 
   useEffect(() => {
     async function fetchClients() {
+
+      if (!company) return; 
+
       try {
-        const response = await api.get('customers');
+        const response = await api.get(`customers/filteredByCompany?companyId=${company._id}`);
         setCustomers(response);
       } catch (error) {
         console.error('Error fetching clients:', error);
@@ -87,7 +92,7 @@ function CustomerList() {
     }
 
     fetchClients();
-  }, [showCreateCustomer]);
+  }, [showCreateCustomer, company]);
 
   return (
     <div>
